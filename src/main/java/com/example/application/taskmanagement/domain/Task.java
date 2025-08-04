@@ -1,6 +1,6 @@
 package com.example.application.taskmanagement.domain;
 
-import com.example.application.base.domain.AbstractEntity;
+import com.example.application.user.base.domain.AbstractEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import org.jspecify.annotations.Nullable;

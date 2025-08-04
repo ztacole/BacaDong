@@ -1,6 +1,6 @@
 package com.example.application.taskmanagement.ui.view;
 
-import com.example.application.base.ui.component.ViewToolbar;
+import com.example.application.user.base.ui.component.ViewToolbar;
 import com.example.application.taskmanagement.domain.Task;
 import com.example.application.taskmanagement.service.TaskService;
 import com.vaadin.flow.component.button.Button;

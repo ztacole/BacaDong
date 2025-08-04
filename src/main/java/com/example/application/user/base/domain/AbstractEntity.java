@@ -1,4 +1,4 @@
-package com.example.application.base.domain;
+package com.example.application.user.base.domain;
 
 import jakarta.persistence.MappedSuperclass;
 import org.jspecify.annotations.Nullable;
