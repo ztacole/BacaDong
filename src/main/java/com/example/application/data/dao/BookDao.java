@@ -2,6 +2,7 @@ package com.example.application.data.dao;
 
 import com.example.application.data.DBService;
 import com.example.application.data.model.Book;
+import com.example.application.data.model.BookContent;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,8 +26,11 @@ public class BookDao {
     public ArrayList<Book> getNewestBooks(int limit) {
         books = new ArrayList<>();
         try {
-            String sql = "SELECT b.*, c.name as category_name FROM books b " +
+            String sql = "SELECT b.*, c.name as category_name, COUNT(bh.id) as view_count, AVG(bh.rating) as avg_rating " +
+                    "FROM books b " +
                     "JOIN categories c ON b.category_id = c.id " +
+                    "LEFT JOIN book_history bh ON b.id = bh.book_id " +
+                    "GROUP BY b.id " +
                     "ORDER BY b.publish_date DESC LIMIT ?";
             ps = conn.prepareStatement(sql);
             ps.setInt(1, limit);
@@ -43,6 +47,8 @@ public class BookDao {
                 book.setPublisher(rs.getString("publisher"));
                 book.setSynopsis(rs.getString("synopsis"));
                 book.setImageCover(rs.getString("image_cover"));
+                book.setViewCount(rs.getInt("view_count"));
+                book.setAverageRating(rs.getDouble("avg_rating"));
                 books.add(book);
             }
         } catch (SQLException e) {
@@ -57,7 +63,7 @@ public class BookDao {
     public ArrayList<Book> getTopRatedBooks(int limit) {
         books = new ArrayList<>();
         try {
-            String sql = "SELECT b.*, c.name as category_name, AVG(bh.rating) as avg_rating " +
+            String sql = "SELECT b.*, c.name as category_name, COUNT(bh.id) as view_count, AVG(bh.rating) as avg_rating " +
                     "FROM books b " +
                     "JOIN categories c ON b.category_id = c.id " +
                     "LEFT JOIN book_history bh ON b.id = bh.book_id " +
@@ -78,6 +84,7 @@ public class BookDao {
                 book.setPublisher(rs.getString("publisher"));
                 book.setSynopsis(rs.getString("synopsis"));
                 book.setImageCover(rs.getString("image_cover"));
+                book.setViewCount(rs.getInt("view_count"));
                 book.setAverageRating(rs.getDouble("avg_rating"));
                 books.add(book);
             }
@@ -93,7 +100,7 @@ public class BookDao {
     public ArrayList<Book> getMostViewedBooks(int limit) {
         books = new ArrayList<>();
         try {
-            String sql = "SELECT b.*, c.name as category_name, COUNT(bh.id) as view_count " +
+            String sql = "SELECT b.*, c.name as category_name, COUNT(bh.id) as view_count, AVG(bh.rating) as avg_rating " +
                     "FROM books b " +
                     "JOIN categories c ON b.category_id = c.id " +
                     "LEFT JOIN book_history bh ON b.id = bh.book_id " +
@@ -115,6 +122,7 @@ public class BookDao {
                 book.setSynopsis(rs.getString("synopsis"));
                 book.setImageCover(rs.getString("image_cover"));
                 book.setViewCount(rs.getInt("view_count"));
+                book.setAverageRating(rs.getDouble("avg_rating"));
                 books.add(book);
             }
         } catch (SQLException e) {
@@ -232,6 +240,29 @@ public class BookDao {
             closeResources();
         }
         return book;
+    }
+
+    // Get Book Contents by Book ID
+    public ArrayList<BookContent> getBookContents(int bookId) {
+        ArrayList<BookContent> bookContents = new ArrayList<>();
+        try {
+            String query = "SELECT * from book_content WHERE book_id = ?";
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, bookId);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                BookContent bookContent = new BookContent();
+                bookContent.setId(rs.getInt("id"));
+                bookContent.setBookId(rs.getInt("book_id"));
+                bookContent.setContent(rs.getString("content"));
+                bookContents.add(bookContent);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return bookContents;
     }
 
     // Helper method to close resources
